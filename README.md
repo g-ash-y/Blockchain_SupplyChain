@@ -1,7 +1,8 @@
 Overview
 This DApp provides a decentralized solution for tracking healthcare products from suppliers to consumers, ensuring transparency, authenticity, and efficiency. By leveraging blockchain, each product's journey is recorded immutably, enabling consumers to verify its legitimacy and source.
 
-Features
+Features:
+
 Product Registration: Add products to the blockchain with unique identifiers.
 Ownership Transfer: Transfer ownership along the supply chain.
 Data Verification: Enable consumers to verify product details using QR codes.
