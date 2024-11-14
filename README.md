@@ -28,7 +28,9 @@ Smart Contract Functions: Automate product registration, transfer validation, an
 
 DETAILED DESCRIPTION OF THE PROJECT:
 
+
 INTRODUCTION
+
 Supply chain systems are often plagued by inefficiencies, lack of trust, and limited transparency, leading to challenges such as counterfeit goods, delays, data manipulation, and restricted visibility for stakeholders. Addressing these issues requires a solution that ensures secure and transparent tracking of products across the entire supply chain, from the point of origin to the final consumer. Blockchain technology offers a powerful tool to tackle these problems by creating a decentralized, tamper-proof ledger that records every transaction and movement of goods in real time.
 
 This system leverages blockchain’s ability to store immutable records and uses smart contracts to automate and secure key supply chain processes. By creating an auditable trail of product information, including details such as origin, ownership, and status, it ensures data integrity and builds trust among participants. The decentralized nature of the platform eliminates reliance on intermediaries, reduces fraud, and fosters accountability across the network.
@@ -39,14 +41,17 @@ By addressing inefficiencies, reducing fraud, and enhancing visibility, this blo
 
 
 PROBLEM STATEMENT
+
 Supply chains face issues with trust, transparency, and inefficiency due to centralized systems, which are prone to data tampering and lack accountability. These systems often rely on intermediaries, increasing costs and slowing down processes. This project introduces a blockchain-based object tracking system that ensures secure, transparent, and efficient supply chains. By using an immutable ledger and smart contracts, it offers real-time visibility, reduces fraud, and builds trust among stakeholders. This approach is especially important for industries like healthcare and food, where product authenticity and quality are crucial.
 
 
 WHY ETHEREUM?
+
 Ethereum is an ideal choice for this project because it provides a decentralized, secure, and transparent platform for implementing smart contracts and managing transactions. Its blockchain ensures immutability and trust, eliminating the need for intermediaries and reducing the risk of fraud or tampering in the supply chain. Ethereum’s robust infrastructure, including support for decentralized applications (DApps), enables efficient tracking of products and automated enforcement of supply chain rules through smart contracts. Additionally, its global network ensures accessibility and real-time updates for all stakeholders, making it perfect for achieving the project's goal of secure and transparent object tracking.
 
 
 WORKFLOW
+
 ~ Product Creation:
    - Supplier creates a product on the DApp by entering details like product ID, supplier information, and product notes. 
    - The product is then stored on the Ethereum blockchain, and a smart contract is triggered, creating a new record for the product with an initial created state.
@@ -66,6 +71,7 @@ WORKFLOW
    - The smart contract records the consumer's ownership on the blockchain.
 
 FUTURE ENHANCEMENT
+
 ~ IoT Integration: 
    - Add IoT sensors to monitor product conditions during transit for quality assurance.
 ~ User Interface Improvement: 
