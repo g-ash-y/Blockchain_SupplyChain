@@ -1,0 +1,45 @@
+[
+    {
+      "inputs": [],
+      "name": "productCount",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "uint256", "name": "id", "type": "uint256"}
+      ],
+      "name": "products",
+      "outputs": [
+        {"internalType": "uint256", "name": "id", "type": "uint256"},
+        {"internalType": "string", "name": "name", "type": "string"},
+        {"internalType": "string", "name": "origin", "type": "string"},
+        {"internalType": "string", "name": "currentLocation", "type": "string"},
+        {"internalType": "address", "name": "owner", "type": "address"}
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "string", "name": "name", "type": "string"},
+        {"internalType": "string", "name": "origin", "type": "string"}
+      ],
+      "name": "createProduct",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "uint256", "name": "id", "type": "uint256"},
+        {"internalType": "string", "name": "newLocation", "type": "string"}
+      ],
+      "name": "updateLocation",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+  
