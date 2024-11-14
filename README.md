@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/8700a16d-a5c1-4c69-850a-0e658187f2f2)Blockchain-Based Object Tracking for Secure and Transparent Supply Chains
+BLOCKCHAIN-BASED OBJECT TRACKING FOR SECURE AND TRANSPARENT SUPPLY CHAINS
 
 Overview
 This DApp provides a decentralized solution for tracking healthcare products from suppliers to consumers, ensuring transparency, authenticity, and efficiency. By leveraging blockchain, each product's journey is recorded immutably, enabling consumers to verify its legitimacy and source.
@@ -21,6 +21,10 @@ Frontend DApp: Provides an intuitive UI for interacting with the blockchain.
 Blockchain: Smart contracts store product data and manage the supply chain processes.
 Decentralized Storage: Stores metadata off-chain for better performance.
 Smart Contract Functions: Automate product registration, transfer validation, and payment processing.
+
+
+
+
 
 DETAILED DESCRIPTION OF THE PROJECT:
 
