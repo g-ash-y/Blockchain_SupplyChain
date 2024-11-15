@@ -3,7 +3,7 @@
   }
   
   header {
-    background-color: #282c34;
+    background-color: lightgrey;
     padding: 20px;
     color: white;
   }
@@ -11,7 +11,7 @@
   button {
     margin: 10px;
     padding: 10px 20px;
-    background-color: #61dafb;
+    background-color: #51cbec;
     border: none;
     border-radius: 5px;
     cursor: pointer;
