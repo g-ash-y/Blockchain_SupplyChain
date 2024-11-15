@@ -9,8 +9,9 @@ const App = () => {
   const [contract, setContract] = useState(null);
   const [productId, setProductId] = useState('');
   const [productData, setProductData] = useState(null);
+  const [productName, setProductName] = useState('');
+  const [productOrigin, setProductOrigin] = useState('');
 
-  // Connect to Metamask and set up provider and contract
   const connectWallet = async () => {
     if (window.ethereum) {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -32,24 +33,24 @@ const App = () => {
     }
   };
 
-  // Fetch product data from the contract
   const fetchProductData = async () => {
-    if (!contract) return;
+    if (!contract || !productId) return;
     try {
-      const data = await contract.getProduct(productId);
+      const data = await contract.products(productId);
       setProductData(data);
     } catch (error) {
       console.error("Error fetching product data:", error);
     }
   };
 
-  // Sample function to add a new product (requires appropriate contract function)
   const addProduct = async () => {
-    if (!contract) return;
+    if (!contract || !productName || !productOrigin) return;
     try {
-      const tx = await contract.addProduct(productId, "Healthcare Product");
+      const tx = await contract.createProduct(productName, productOrigin);
       await tx.wait();
       alert("Product added successfully!");
+      setProductName('');
+      setProductOrigin('');
     } catch (error) {
       console.error("Error adding product:", error);
     }
@@ -62,7 +63,7 @@ const App = () => {
   return (
     <div className="App">
       <header>
-        <h1>Blockchain Healthcare Product Tracker</h1>
+        <h1>Blockchain Product Tracker</h1>
         <button onClick={connectWallet}>
           {account ? `Connected: ${account.slice(0, 6)}...` : "Connect Wallet"}
         </button>
@@ -80,9 +81,11 @@ const App = () => {
           <button onClick={fetchProductData}>Fetch Product</button>
           {productData && (
             <div>
-              <p>Product ID: {productId}</p>
+              <p>Product ID: {productData.id.toString()}</p>
               <p>Product Name: {productData.name}</p>
-              <p>Product Owner: {productData.owner}</p>
+              <p>Origin: {productData.origin}</p>
+              <p>Current Location: {productData.currentLocation}</p>
+              <p>Owner: {productData.owner}</p>
             </div>
           )}
         </div>
@@ -91,9 +94,15 @@ const App = () => {
           <h2>Add New Product</h2>
           <input
             type="text"
-            placeholder="Enter New Product ID"
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
+            placeholder="Enter Product Name"
+            value={productName}
+            onChange={(e) => setProductName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Enter Product Origin"
+            value={productOrigin}
+            onChange={(e) => setProductOrigin(e.target.value)}
           />
           <button onClick={addProduct}>Add Product</button>
         </div>
