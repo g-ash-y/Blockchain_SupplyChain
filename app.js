@@ -1,93 +1,106 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import Web3 from 'web3';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from './store'; // Assuming Redux is set up in your project
+import SupplyChainContract from './contracts/SupplyChain.json'; // Adjust this path as needed
 
-const App = () => {
-  const [account, setAccount] = useState("0x123...mock");
-  const [productId, setProductId] = useState('');
-  const [productData, setProductData] = useState(null);
-  const [productName, setProductName] = useState('');
-  const [productOrigin, setProductOrigin] = useState('');
+import SupplierDashboard from './components/SupplierDashboard';
+import MedicalShopDashboard from './components/MedicalShopDashboard';
+import QRScanner from './components/QRScanner'; // Example for consumer product verification
 
-  const connectWallet = async () => {
-    // Mock wallet connection
-    alert("Wallet connected (mock)");
-  };
+function App() {
+    const [web3, setWeb3] = useState(null);
+    const [account, setAccount] = useState('');
+    const [contract, setContract] = useState(null);
+    const [userRole, setUserRole] = useState(''); // 'supplier', 'retailer', etc.
 
-  const fetchProductData = async () => {
-    // Mock fetching product data
-    if (!productId) return;
-    const mockProductData = {
-      id: productId,
-      name: "Mock Product",
-      origin: "Mock Origin",
-      currentLocation: "Mock Location",
-      owner: "0xMockOwnerAddress",
+    useEffect(() => {
+        loadWeb3();
+        loadBlockchainData();
+    }, []);
+
+    const loadWeb3 = async () => {
+        if (window.ethereum) {
+            const web3Instance = new Web3(window.ethereum);
+            setWeb3(web3Instance);
+            try {
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                console.log('MetaMask connected');
+            } catch (error) {
+                console.error('User denied MetaMask connection');
+            }
+        } else {
+            console.log('Please install MetaMask');
+        }
     };
-    setProductData(mockProductData);
-  };
 
-  const addProduct = async () => {
-    // Mock adding a product
-    if (!productName || !productOrigin) return;
-    alert(`Product "${productName}" from "${productOrigin}" added (mock).`);
-    setProductName('');
-    setProductOrigin('');
-  };
+    const loadBlockchainData = async () => {
+        if (web3) {
+            const accounts = await web3.eth.getAccounts();
+            setAccount(accounts[0]);
 
-  useEffect(() => {
-    // Mock wallet auto-connection
-    setAccount("0x123...mock");
-  }, []);
+            // Load the smart contract
+            const networkId = await web3.eth.net.getId();
+            const networkData = SupplyChainContract.networks[networkId];
+            if (networkData) {
+                const supplyChainContract = new web3.eth.Contract(
+                    SupplyChainContract.abi,
+                    networkData.address
+                );
+                setContract(supplyChainContract);
+                console.log("Smart contract loaded");
 
-  return (
-    <div className="App">
-      <header>
-        <h1>Blockchain Product Tracker (Mock)</h1>
-        <button onClick={connectWallet}>
-          {account ? `Connected: ${account}` : "Connect Wallet"}
-        </button>
-      </header>
+                // Fetch user role from the blockchain (example method, adjust as per contract)
+                const role = await supplyChainContract.methods.getUserRole(accounts[0]).call();
+                setUserRole(role); // Assume contract has a method to get user role
+            } else {
+                console.log('Smart contract not deployed to detected network');
+            }
+        }
+    };
 
-      <main>
-        <div className="product-info">
-          <h2>Get Product Information</h2>
-          <input
-            type="text"
-            placeholder="Enter Product ID"
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
-          />
-          <button onClick={fetchProductData}>Fetch Product</button>
-          {productData && (
-            <div>
-              <p>Product ID: {productData.id}</p>
-              <p>Product Name: {productData.name}</p>
-              <p>Origin: {productData.origin}</p>
-              <p>Current Location: {productData.currentLocation}</p>
-              <p>Owner: {productData.owner}</p>
-            </div>
-          )}
-        </div>
+    const connectWallet = async () => {
+        try {
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            loadBlockchainData();
+        } catch (error) {
+            console.error('Failed to connect wallet:', error);
+        }
+    };
 
-        <div className="add-product">
-          <h2>Add New Product</h2>
-          <input
-            type="text"
-            placeholder="Enter Product Name"
-            value={productName}
-            onChange={(e) => setProductName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Enter Product Origin"
-            value={productOrigin}
-            onChange={(e) => setProductOrigin(e.target.value)}
-          />
-          <button onClick={addProduct}>Add Product</button>
-        </div>
-      </main>
-    </div>
-  );
-};
+    return (
+        <Provider store={store}>
+            <Router>
+                <div className="App">
+                    <header>
+                        <h1>Blockchain Supply Chain DApp</h1>
+                        <button onClick={connectWallet}>
+                            {account ? `Connected: ${account}` : 'Connect Wallet'}
+                        </button>
+                    </header>
+                    <Switch>
+                        <Route path="/supplier">
+                            <SupplierDashboard contract={contract} account={account} />
+                        </Route>
+                        <Route path="/medical-shop">
+                            <MedicalShopDashboard contract={contract} account={account} />
+                        </Route>
+                        <Route path="/verify">
+                            <QRScanner contract={contract} />
+                        </Route>
+                        {/* Add more routes as per user roles */}
+                        <Route path="/">
+                            <div>
+                                <h2>Welcome to the Supply Chain DApp</h2>
+                                <p>Select your role to get started.</p>
+                            </div>
+                        </Route>
+                    </Switch>
+                </div>
+            </Router>
+        </Provider>
+    );
+}
 
 export default App;

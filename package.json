@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "description": "BLOCKCHAIN-BASED OBJECT TRACKING FOR SECURE AND TRANSPARENT SUPPLY CHAINS",
   "main": "app.js",
-"scripts": {
-  "start": "react-scripts start",
-  "build": "react-scripts build",
-  "test": "react-scripts test",
-  "eject": "react-scripts eject",
-   "test": "echo \"Error: no test specified\" && exit 1"
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "eject": "react-scripts eject"
   },
   "author": "",
   "license": "ISC",
@@ -139,6 +138,7 @@
     "picomatch": "^2.3.1",
     "randombytes": "^2.1.0",
     "raw-body": "^2.5.2",
+    "react-scripts": "^5.0.1",
     "readable-stream": "^3.6.2",
     "readdirp": "^4.0.2",
     "require-directory": "^2.1.1",
