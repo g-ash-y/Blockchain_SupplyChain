@@ -1,4 +1,4 @@
-import { Contract, JsonRpcProvider } from "ethers";
+import { Contract, BrowserProvider } from "ethers";
 import details from "./deployed_addresses.json" assert { type: "json" };
 import SupplyChain from "./SupplyChain.json" assert { type: "json" };
 
