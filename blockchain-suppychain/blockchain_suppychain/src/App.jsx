@@ -5,211 +5,172 @@ import { abi } from "./SupplyChain.json";
 import "./App.css"
 
 function App() {
-    const [distributorData, setDistributorData] = useState({
-      itemId: 0,
-      itemName: "",
-      mfDate: "",
-      expDate: "",
-      totalQty: 0,
-    });
-  
-    const [retailerData, setRetailerData] = useState({
-      itemId: 0,
-      qty: 0,
-    });
-  
-    const [customerData, setCustomerData] = useState({
-      itemId: 0,
-      qty: 0,
-    });
-  
-    const [viewItemId, setViewItemId] = useState(0);
-    const [itemDetails, setItemDetails] = useState("");
-    const [role, setRole] = useState(""); // Tracks current role (distributor, retailer, customer)
-  
-    const provider = new BrowserProvider(window.ethereum);
-  
-    const handleChange = (setter) => (event) => {
-      const { name, value } = event.target;
-      setter((prevState) => ({ ...prevState, [name]: value }));
-    };
-  
-    const submitTransaction = async (action) => {
-      try {
-        const signer = await provider.getSigner();
-        const instance = new Contract(contractAddress, abi, signer);
-  
-        if (role === "distributor" && action === "addItem") {
-          const { itemId, itemName, mfDate, expDate, totalQty } = distributorData;
-          const trx = await instance.addItem(
-            itemId,
-            itemName,
-            parseInt(mfDate.replace(/-/g, "")),
-            parseInt(expDate.replace(/-/g, "")),
-            totalQty
-          );
-          alert(`Item Added Successfully! Transaction Hash: ${trx.hash}`);
-        }
-  
-        if (role === "retailer" && action === "accessItem") {
-          const { itemId, qty } = retailerData;
-          const trx = await instance.accessItem(itemId, qty);
-          alert(`Item Accessed Successfully! Transaction Hash: ${trx.hash}`);
-        }
-  
-        if (role === "customer" && action === "claimOwnership") {
-          const { itemId, qty } = customerData;
-          const trx = await instance.claimOwnership(itemId, qty);
-          alert(`Ownership Claimed Successfully! Transaction Hash: ${trx.hash}`);
-        }
-      } catch (err) {
-        console.error("Error:", err);
-        alert("Transaction Failed. Check the console for more details.");
-      }
-    };
-  
-    const viewItem = async () => {
-      try {
-        const signer = await provider.getSigner();
-        const instance = new Contract(contractAddress, abi, signer);
-        const [basicDetails, dateDetails] = await Promise.all([
-          instance.viewItemBasicDetails(viewItemId),
-          instance.viewItemDates(viewItemId),
-        ]);
-  
-        setItemDetails(`
-          Item ID: ${basicDetails[0]}
-          Name: ${basicDetails[1]}
-          Total Quantity: ${basicDetails[2]}
-          Remaining Quantity: ${basicDetails[3]}
-          Manufacturing Date: ${dateDetails[0]}/${dateDetails[1]}/${dateDetails[2]}
-          Expiry Date: ${dateDetails[3]}/${dateDetails[4]}/${dateDetails[5]}
-          Current Owner: ${dateDetails[6]}
-        `);
-      } catch (err) {
-        console.error("Error:", err);
-        alert("Failed to fetch item details. Check the console for more details.");
-      }
-    };
-  
-    return (
-      <div className="app">
-        <header>
-          <h1>Supply Chain Management</h1>
-          <p>Track and manage items across distributor, retailer, and customer.</p>
-        </header>
-  
-        <div className="role-selection">
-          <label>Select Your Role:</label>
-          <select onChange={(e) => setRole(e.target.value)} value={role}>
-            <option value="">Select Role</option>
-            <option value="distributor">Distributor</option>
-            <option value="retailer">Retailer</option>
-            <option value="customer">Customer</option>
-          </select>
-        </div>
-  
-        {role === "distributor" && (
-          <div className="form">
-            <h2>Distributor Actions</h2>
-            <input
-              type="number"
-              name="itemId"
-              placeholder="Item ID"
-              value={distributorData.itemId}
-              onChange={handleChange(setDistributorData)}
-            />
-            <input
-              type="text"
-              name="itemName"
-              placeholder="Item Name"
-              value={distributorData.itemName}
-              onChange={handleChange(setDistributorData)}
-            />
-            <input
-              type="date"
-              name="mfDate"
-              placeholder="Manufacturing Date"
-              value={distributorData.mfDate}
-              onChange={handleChange(setDistributorData)}
-            />
-            <input
-              type="date"
-              name="expDate"
-              placeholder="Expiry Date"
-              value={distributorData.expDate}
-              onChange={handleChange(setDistributorData)}
-            />
-            <input
-              type="number"
-              name="totalQty"
-              placeholder="Total Quantity"
-              value={distributorData.totalQty}
-              onChange={handleChange(setDistributorData)}
-            />
-            <button onClick={() => submitTransaction("addItem")}>Add Item</button>
-          </div>
-        )}
-  
-        {role === "retailer" && (
-          <div className="form">
-            <h2>Retailer Actions</h2>
-            <input
-              type="number"
-              name="itemId"
-              placeholder="Item ID"
-              value={retailerData.itemId}
-              onChange={handleChange(setRetailerData)}
-            />
-            <input
-              type="number"
-              name="qty"
-              placeholder="Quantity"
-              value={retailerData.qty}
-              onChange={handleChange(setRetailerData)}
-            />
-            <button onClick={() => submitTransaction("accessItem")}>
-              Access Item
-            </button>
-          </div>
-        )}
-  
-        {role === "customer" && (
-          <div className="form">
-            <h2>Customer Actions</h2>
-            <input
-              type="number"
-              name="itemId"
-              placeholder="Item ID"
-              value={customerData.itemId}
-              onChange={handleChange(setCustomerData)}
-            />
-            <input
-              type="number"
-              name="qty"
-              placeholder="Quantity"
-              value={customerData.qty}
-              onChange={handleChange(setCustomerData)}
-            />
-            <button onClick={() => submitTransaction("claimOwnership")}>
-              Claim Ownership
-            </button>
-          </div>
-        )}
-  
-        <div className="view-section">
-          <h2>View Item Details</h2>
+  const [formData, setFormData] = useState({
+    itemId: 0,
+    itemName: '',
+    mfDate: '', // Manufacturing Date as YYYY-MM-DD
+    expDate: '', // Expiry Date as YYYY-MM-DD
+    totalQty: 0,
+  });
+
+  const [queryId, setQueryId] = useState('');
+  const [output, setOutput] = useState('');
+  const [connected, setConnected] = useState(false);
+
+  const provider = new BrowserProvider(window.ethereum);
+
+  // Function to connect MetaMask
+  async function connectMetaMask() {
+    try {
+      const signer = await provider.getSigner();
+      alert(`Successfully Connected: ${signer.address}`);
+      setConnected(true);
+    } catch (err) {
+      console.error('Error connecting to MetaMask:', err);
+      alert('MetaMask connection failed.');
+    }
+  }
+
+  // Handle form input changes
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  // Add item (Distributor role)
+  const addItem = async () => {
+    try {
+      const signer = await provider.getSigner();
+      const instance = new Contract(contractAddress, abi, signer);
+
+      const mfDate = formatDate(formData.mfDate); // Convert YYYY-MM-DD to DDMMYYYY
+      const expDate = formatDate(formData.expDate);
+
+      const trx = await instance.addItem(
+        formData.itemId,
+        formData.itemName,
+        mfDate,
+        expDate,
+        formData.totalQty
+      );
+
+      console.log('Transaction Hash:', trx.hash);
+      alert('Item successfully added.');
+    } catch (err) {
+      console.error('Error adding item:', err);
+      alert('Failed to add item.');
+    }
+  };
+
+  // View item details
+  const viewItem = async () => {
+    try {
+      const signer = await provider.getSigner();
+      const instance = new Contract(contractAddress, abi, signer);
+
+      const result = await instance.viewItemBasicDetails(queryId);
+      setOutput(
+        `Item ID: ${result[0]}, Name: ${result[1]}, Total Qty: ${result[2]}, Remaining Qty: ${result[3]}`
+      );
+    } catch (err) {
+      console.error('Error fetching item details:', err);
+      alert('Failed to fetch item details.');
+    }
+  };
+
+  // Utility function to format dates
+  const formatDate = (dateStr) => {
+    const [year, month, day] = dateStr.split('-');
+    return `${day}${month}${year}`;
+  };
+
+  return (
+    <div>
+      <h1>Supply Chain DApp</h1>
+      {!connected && (
+        <button onClick={connectMetaMask}>Connect MetaMask</button>
+      )}
+
+      <h2>Add Item</h2>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          addItem();
+        }}
+      >
+        <div>
+          <label htmlFor="itemId">Item ID:</label>
           <input
             type="number"
-            placeholder="Enter Item ID"
-            value={viewItemId}
-            onChange={(e) => setViewItemId(e.target.value)}
+            id="itemId"
+            name="itemId"
+            value={formData.itemId}
+            onChange={handleChange}
+            required
           />
-          <button onClick={viewItem}>View Details</button>
-          {itemDetails && <pre>{itemDetails}</pre>}
         </div>
+        <div>
+          <label htmlFor="itemName">Item Name:</label>
+          <input
+            type="text"
+            id="itemName"
+            name="itemName"
+            value={formData.itemName}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="mfDate">Manufacturing Date:</label>
+          <input
+            type="date"
+            id="mfDate"
+            name="mfDate"
+            value={formData.mfDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="expDate">Expiry Date:</label>
+          <input
+            type="date"
+            id="expDate"
+            name="expDate"
+            value={formData.expDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="totalQty">Total Quantity:</label>
+          <input
+            type="number"
+            id="totalQty"
+            name="totalQty"
+            value={formData.totalQty}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit">Add Item</button>
+      </form>
+
+      <h2>View Item</h2>
+      <div>
+        <label htmlFor="queryId">Item ID:</label>
+        <input
+          type="number"
+          id="queryId"
+          name="queryId"
+          value={queryId}
+          onChange={(e) => setQueryId(e.target.value)}
+        />
+        <button onClick={viewItem}>View</button>
       </div>
-    );
+      <p>{output}</p>
+    </div>
+  );
 
 }
 
