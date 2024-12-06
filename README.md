@@ -63,3 +63,6 @@ Start the Frontend: In the frontend directory, start the development server:
 npm run dev
 ```
 Access the Application: Open http://localhost:5173 to interact with the decentralized application (DApp).
+
+DEMO VIDEO: https://github.com/g-ash-y/Blockchain_SupplyChain/blob/main/DEMO-%20SUPPLYCHAIN_BLOCKCHAIN.mp4
+DEMO VIDEO
