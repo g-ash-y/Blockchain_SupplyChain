@@ -62,4 +62,4 @@ Start the Frontend: In the frontend directory, start the development server:
 ```
 npm run dev
 ```
-Access the Application: Open http://localhost:3000 to interact with the decentralized application (DApp).
+Access the Application: Open http://localhost:5173 to interact with the decentralized application (DApp).
