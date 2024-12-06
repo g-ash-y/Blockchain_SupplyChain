@@ -97,6 +97,7 @@ contract SupplyChain {
         uint totalQty,
         uint remainingQty
     ) {
+        require(items[_itemId].itemId != 0, "Item does not exist");
         Item memory item = items[_itemId];
 
         return (

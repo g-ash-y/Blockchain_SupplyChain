@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "D:\\Blockchain_SuppyChain\\contracts\\SupplyChain.sol": {
-      "lastModificationDate": 1731656695874,
-      "contentHash": "df54721fce431585b9b73b693ef6436c",
+      "lastModificationDate": 1733473475509,
+      "contentHash": "0fc515014a50e5e912d70a1ffa2e7015",
       "sourceName": "contracts/SupplyChain.sol",
       "solcConfig": {
         "version": "0.8.0",

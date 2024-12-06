@@ -67,14 +67,19 @@ function App() {
     try {
       const signer = await provider.getSigner();
       const instance = new Contract(contractAddress, abi, signer);
-
+  
+      console.log("Trying to fetch details for Item ID:", queryId);
+  
       const result = await instance.viewItemBasicDetails(queryId);
+  
+      console.log("Item fetched:", result);
+  
       setOutput(
-        `Item ID: ${result[0]}, Name: ${result[1]}, Total Qty: ${result[2]}, Remaining Qty: ${result[3]}`
+        `Item ID: ${result[0].toString()}, Name: ${result[1]}, Total Qty: ${result[2].toString()}, Remaining Qty: ${result[3].toString()}`
       );
     } catch (err) {
-      console.error('Error fetching item details:', err);
-      alert('Failed to fetch item details.');
+      console.error("Error fetching item details:", err);
+      alert("Failed to fetch item details. Check the console for more details.");
     }
   };
 
