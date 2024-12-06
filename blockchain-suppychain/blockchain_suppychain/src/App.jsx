@@ -1,21 +1,26 @@
-import { useState } from 'react'
+import { useState } from "react";
 import { Contract, BrowserProvider } from "ethers";
 import { contractAddress } from "./deployed_addresses.json";
 import { abi } from "./SupplyChain.json";
-import "./App.css"
+import "./App.css";
 
 function App() {
   const [formData, setFormData] = useState({
     itemId: 0,
-    itemName: '',
-    mfDate: '', // Manufacturing Date as YYYY-MM-DD
-    expDate: '', // Expiry Date as YYYY-MM-DD
+    itemName: "",
+    mfDate: "",
+    expDate: "",
     totalQty: 0,
   });
-
-  const [queryId, setQueryId] = useState('');
-  const [output, setOutput] = useState('');
+  const [retailerQty, setRetailerQty] = useState(0);
+  const [customerData, setCustomerData] = useState({
+    itemId: 0,
+    qty: 0,
+  });
+  const [queryId, setQueryId] = useState("");
+  const [output, setOutput] = useState("");
   const [connected, setConnected] = useState(false);
+  const [role, setRole] = useState("");
 
   const provider = new BrowserProvider(window.ethereum);
 
@@ -26,8 +31,8 @@ function App() {
       alert(`Successfully Connected: ${signer.address}`);
       setConnected(true);
     } catch (err) {
-      console.error('Error connecting to MetaMask:', err);
-      alert('MetaMask connection failed.');
+      console.error("Error connecting to MetaMask:", err);
+      alert("MetaMask connection failed.");
     }
   }
 
@@ -43,7 +48,7 @@ function App() {
       const signer = await provider.getSigner();
       const instance = new Contract(contractAddress, abi, signer);
 
-      const mfDate = formatDate(formData.mfDate); // Convert YYYY-MM-DD to DDMMYYYY
+      const mfDate = formatDate(formData.mfDate);
       const expDate = formatDate(formData.expDate);
 
       const trx = await instance.addItem(
@@ -54,11 +59,41 @@ function App() {
         formData.totalQty
       );
 
-      console.log('Transaction Hash:', trx.hash);
-      alert('Item successfully added.');
+      alert("Item successfully added.");
     } catch (err) {
-      console.error('Error adding item:', err);
-      alert('Failed to add item.');
+      console.error("Error adding item:", err);
+      alert("Failed to add item.");
+    }
+  };
+
+  // Update quantity (Retailer role)
+  const updateQuantity = async () => {
+    try {
+      const signer = await provider.getSigner();
+      const instance = new Contract(contractAddress, abi, signer);
+
+      const trx = await instance.updateQuantity(queryId, retailerQty);
+      alert("Quantity updated successfully.");
+    } catch (err) {
+      console.error("Error updating quantity:", err);
+      alert("Failed to update quantity.");
+    }
+  };
+
+  // Claim ownership (Customer role)
+  const claimOwnership = async () => {
+    try {
+      const signer = await provider.getSigner();
+      const instance = new Contract(contractAddress, abi, signer);
+
+      const trx = await instance.claimOwnership(
+        customerData.itemId,
+        customerData.qty
+      );
+      alert("Ownership claimed successfully.");
+    } catch (err) {
+      console.error("Error claiming ownership:", err);
+      alert("Failed to claim ownership.");
     }
   };
 
@@ -67,116 +102,155 @@ function App() {
     try {
       const signer = await provider.getSigner();
       const instance = new Contract(contractAddress, abi, signer);
-  
-      console.log("Trying to fetch details for Item ID:", queryId);
-  
+
       const result = await instance.viewItemBasicDetails(queryId);
-  
-      console.log("Item fetched:", result);
-  
       setOutput(
         `Item ID: ${result[0].toString()}, Name: ${result[1]}, Total Qty: ${result[2].toString()}, Remaining Qty: ${result[3].toString()}`
       );
     } catch (err) {
       console.error("Error fetching item details:", err);
-      alert("Failed to fetch item details. Check the console for more details.");
+      alert("Failed to fetch item details.");
     }
   };
 
   // Utility function to format dates
   const formatDate = (dateStr) => {
-    const [year, month, day] = dateStr.split('-');
+    const [year, month, day] = dateStr.split("-");
     return `${day}${month}${year}`;
   };
 
   return (
     <div>
       <h1>Supply Chain DApp</h1>
-      {!connected && (
-        <button onClick={connectMetaMask}>Connect MetaMask</button>
+      {!connected && <button onClick={connectMetaMask}>Connect MetaMask</button>}
+
+      {connected && (
+        <div>
+          <h2>Current Role: {role || "None Selected"}</h2>
+          <div>
+            <button onClick={() => setRole("Distributor")}>Distributor Panel</button>
+            <button onClick={() => setRole("Retailer")}>Retailer Panel</button>
+            <button onClick={() => setRole("Customer")}>Customer Panel</button>
+          </div>
+        </div>
       )}
 
-      <h2>Add Item</h2>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          addItem();
-        }}
-      >
+      {role === "Distributor" && (
         <div>
-          <label htmlFor="itemId">Item ID:</label>
+          <h2>Distributor Panel</h2>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              addItem();
+            }}
+          >
+            <label>Item ID:</label>
+            <input
+              type="number"
+              name="itemId"
+              value={formData.itemId}
+              onChange={handleChange}
+              required
+            />
+            <label>Item Name:</label>
+            <input
+              type="text"
+              name="itemName"
+              value={formData.itemName}
+              onChange={handleChange}
+              required
+            />
+            <label>Manufacturing Date:</label>
+            <input
+              type="date"
+              name="mfDate"
+              value={formData.mfDate}
+              onChange={handleChange}
+              required
+            />
+            <label>Expiry Date:</label>
+            <input
+              type="date"
+              name="expDate"
+              value={formData.expDate}
+              onChange={handleChange}
+              required
+            />
+            <label>Total Quantity:</label>
+            <input
+              type="number"
+              name="totalQty"
+              value={formData.totalQty}
+              onChange={handleChange}
+              required
+            />
+            <button type="submit">Add Item</button>
+          </form>
+          <h3>View Item</h3>
+          <label>Item ID:</label>
           <input
             type="number"
-            id="itemId"
-            name="itemId"
-            value={formData.itemId}
-            onChange={handleChange}
-            required
+            value={queryId}
+            onChange={(e) => setQueryId(e.target.value)}
           />
+          <button onClick={viewItem}>View</button>
+          <p>{output}</p>
         </div>
-        <div>
-          <label htmlFor="itemName">Item Name:</label>
-          <input
-            type="text"
-            id="itemName"
-            name="itemName"
-            value={formData.itemName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="mfDate">Manufacturing Date:</label>
-          <input
-            type="date"
-            id="mfDate"
-            name="mfDate"
-            value={formData.mfDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="expDate">Expiry Date:</label>
-          <input
-            type="date"
-            id="expDate"
-            name="expDate"
-            value={formData.expDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="totalQty">Total Quantity:</label>
-          <input
-            type="number"
-            id="totalQty"
-            name="totalQty"
-            value={formData.totalQty}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit">Add Item</button>
-      </form>
+      )}
 
-      <h2>View Item</h2>
-      <div>
-        <label htmlFor="queryId">Item ID:</label>
-        <input
-          type="number"
-          id="queryId"
-          name="queryId"
-          value={queryId}
-          onChange={(e) => setQueryId(e.target.value)}
-        />
-        <button onClick={viewItem}>View</button>
-      </div>
-      <p>{output}</p>
+      {role === "Retailer" && (
+        <div>
+          <h2>Retailer Panel</h2>
+          <label>Item ID:</label>
+          <input
+            type="number"
+            value={queryId}
+            onChange={(e) => setQueryId(e.target.value)}
+          />
+          <label>Quantity:</label>
+          <input
+            type="number"
+            value={retailerQty}
+            onChange={(e) => setRetailerQty(Number(e.target.value))}
+          />
+          <button onClick={updateQuantity}>Update</button>
+          <button onClick={viewItem}>View Item</button>
+          <p>{output}</p>
+        </div>
+      )}
+
+      {role === "Customer" && (
+        <div>
+          <h2>Customer Panel</h2>
+          <label>Item ID:</label>
+          <input
+            type="number"
+            value={customerData.itemId}
+            onChange={(e) =>
+              setCustomerData((prev) => ({ ...prev, itemId: e.target.value }))
+            }
+          />
+          <label>Quantity:</label>
+          <input
+            type="number"
+            value={customerData.qty}
+            onChange={(e) =>
+              setCustomerData((prev) => ({ ...prev, qty: e.target.value }))
+            }
+          />
+          <button onClick={claimOwnership}>Claim Ownership</button>
+          <label>View Item ID:</label>
+          <input
+            type="number"
+            value={queryId}
+            onChange={(e) => setQueryId(e.target.value)}
+          />
+          <button onClick={viewItem}>View Item</button>
+          <p>{output}</p>
+        </div>
+      )}
     </div>
   );
-
 }
 
-export default App
+export default App;
